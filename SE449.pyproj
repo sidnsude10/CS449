@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>cf3f412d-1f2f-486f-8a99-f675e965a9ae</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>SE449.py</StartupFile>
+    <StartupFile>src\main.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -21,9 +21,16 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="SE449.py" />
-    <Compile Include="src\449GUI.py" />
-    <Compile Include="tests\449UT.py" />
+    <Compile Include="src\main.py" />
+    <Compile Include="src\__init__.py" />
+    <Compile Include="src\sos_gui.py" />
+    <Compile Include="src\sos_game.py" />
+    <Compile Include="tests\sprint0test.py" />
+    <Compile Include="tests\test_simple_game.py" />
+    <Compile Include="tests\test_board_size.py" />
+    <Compile Include="tests\test_general_game.py" />
+    <Compile Include="tests\test_new_game.py" />
+    <Compile Include="tests\test_game_mode.py" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="docs\" />
@@ -34,8 +41,13 @@
   <ItemGroup>
     <Content Include="docs\CS449Sprint0 -Sid Nsude.docx" />
     <Content Include="docs\CS449Sprint1-Sid Nsude.docx" />
+    <Content Include="docs\CS449Sprint2- Sid Nsude.docx" />
     <Content Include="screenshots\449 GUI ss.png" />
     <Content Include="screenshots\449 UT ss.png" />
+    <Content Include="screenshots\AC 1.3 code SS.png" />
+    <Content Include="screenshots\AC 1.3 SS.png" />
+    <Content Include="screenshots\AC 4.3 code SS.png" />
+    <Content Include="screenshots\AC 4.3 prompt SS.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
