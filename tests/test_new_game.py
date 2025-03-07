@@ -13,7 +13,7 @@ class TestNewGame(unittest.TestCase):
         game = SOSGame(3)
         for row in range(game.board_size):
             for col in range(game.board_size):
-                self.assertEqual(game.getCell(row, col), None, "Error: Board should be empty after restarting")
+                self.assertEqual(game.getCell(row, col), " ", "Error: Board should be empty after restarting")
 
     def test_turn_reset(self):
         #make sure the first turn is always 'S' after restarting
