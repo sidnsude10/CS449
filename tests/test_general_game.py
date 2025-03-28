@@ -77,4 +77,4 @@ class TestGeneralGame(unittest.TestCase):
         self.assertEqual(self.game.getGameState(), "Game Over - It's a Draw!", "error: the game should end in a draw if SOS counts are equal.")
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main() 
