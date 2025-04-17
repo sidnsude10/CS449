@@ -1,4 +1,7 @@
-﻿class SOSGame:
+﻿from abc import ABC, abstractmethod
+import random
+
+class SOSGame:
     def __init__(self, board_size):
         if board_size < 3:
             raise ValueError("Board size must be at least 3x3.")
@@ -25,7 +28,6 @@
             return False  
 
         self.board[row][column] = letter  
-        self.switch_turn()
         return True  
 
     def switch_turn(self):
@@ -33,60 +35,48 @@
 
     def checkForSOS(self, row=None, column=None):
         directions = [
-            (0, 1), (1, 0), (1, 1), (-1, 1), 
-            (0, -1), (-1, 0), (-1, -1), (1, -1)  
+            (0, 1),   # right
+            (1, 0),   # down
+            (1, 1),   # down-right
+            (-1, 1),  # up-right
+            (0, -1),  # left
+            (-1, 0),  # up
+            (-1, -1), # up-left
+            (1, -1)   # down-left
         ]
 
         found_sos = 0
-        counted_positions = set()  
 
+        # Simple mode
         if row is not None and column is not None:
             for dr, dc in directions:
                 try:
-                    sos_positions = {(row - dr, column - dc), (row, column), (row + dr, column + dc)}
-                    if sos_positions.issubset(counted_positions):
-                        continue  
-
                     if (
-                        self.getCell(row - dr, column - dc) == "S"
-                        and self.getCell(row, column) == "O"
-                        and self.getCell(row + dr, column + dc) == "S"
+                        self.getCell(row - dr, column - dc) == "S" and
+                        self.getCell(row, column) == "O" and
+                        self.getCell(row + dr, column + dc) == "S"
                     ):
                         found_sos += 1
-                        counted_positions.update(sos_positions)  
-
-                    elif (
-                        self.getCell(row, column) == "S"
-                        and self.getCell(row - dr, column - dc) == "O"
-                        and self.getCell(row + dr, column + dc) == "S"
-                    ):
-                        found_sos += 1
-                        counted_positions.update(sos_positions)  
-
                 except IndexError:
-                    pass  
+                    continue
+            return found_sos
 
-            return found_sos  
-
+        # General mode
         for r in range(self.board_size):
             for c in range(self.board_size):
                 for dr, dc in directions:
                     try:
                         if (
-                            (self.getCell(r, c) == "O" and
-                             self.getCell(r - dr, c - dc) == "S" and
-                             self.getCell(r + dr, c + dc) == "S") 
-                            or
-                            (self.getCell(r, c) == "S" and
-                             self.getCell(r - dr, c - dc) == "O" and
-                             self.getCell(r + dr, c + dc) == "S") 
+                            self.getCell(r - dr, c - dc) == "S" and
+                            self.getCell(r, c) == "O" and
+                            self.getCell(r + dr, c + dc) == "S"
                         ):
                             found_sos += 1
-
                     except IndexError:
-                        pass  
+                        continue
 
-        return found_sos  
+        return found_sos
+  
 
     def getGameState(self): 
         if isinstance(self, SimpleSOS):
@@ -96,8 +86,8 @@
             for r in range(self.board_size):
                 for c in range(self.board_size):
                     if self.checkForSOS(r, c) > 0:
-                        winner = "Blue" if self.current_turn == "S" else "Red"
-                        return f"Game Over - {winner} Wins!"  
+                        return f"Game Over - {self.current_player_name} Wins!"
+
 
             return "Game In Progress"
 
@@ -105,15 +95,14 @@
             if not self.isGameOver():
                 return "Game In Progress"  
 
-            blue_sos = self.sos_count["Blue"]
-            red_sos = self.sos_count["Red"]
+        if self.blue_score > self.red_score:
+            return "Game Over - Blue Wins!"
+        elif self.red_score > self.blue_score:
+            return "Game Over - Red Wins!"
+        else:
+            return "Game Over - It's a Draw!"
 
-            if blue_sos > red_sos:
-                return "Game Over - Blue Wins!"
-            elif red_sos > blue_sos:
-                return "Game Over - Red Wins!"
-
-            return "Game Over - It's a Draw!"  
+             
 
         return "Game In Progress"
 
@@ -122,44 +111,92 @@
 
 
 class SimpleSOS(SOSGame):
-    def makeMove(self, row, column, letter):
-        if not self.validateMove(row, column, letter):
-            return False  
+    def makeMove(self, row, col, letter):
+        if not self.validateMove(row, col, letter):
+            return False
 
-        self.board[row][column] = letter  
-        last_player = "Blue" if self.current_turn == "S" else "Red"  
+        self.board[row][col] = letter
+        sos_count = self.checkForSOS(row, col)
 
-        sos_count = self.checkForSOS()
         if sos_count > 0:
-            return f"Game Over - {last_player} Wins!"  
+            return f"Game Over - {self.current_player_name} Wins!"
+
 
         if self.isGameOver():
             return "Game Over - It's a Draw!"
 
-        self.switch_turn()
-        return True  
+        
+        return True
 
 
 class GeneralSOS(SOSGame):
     def __init__(self, board_size):
         super().__init__(board_size)
-        self.sos_count = {"Blue": 0, "Red": 0}  
+        self.blue_score = 0
+        self.red_score = 0
 
     def makeMove(self, row, column, letter):
         if not self.validateMove(row, column, letter):
-            return False  
+            return False
 
-        self.board[row][column] = letter  
-        player = "Blue" if self.current_turn == "S" else "Red"
+        self.board[row][column] = letter
 
-        previous_sos_count = self.sos_count[player]  
-        new_sos = self.checkForSOS(row, column)  
+        
+        sos_count = self.checkForSOS(row, column)
 
-        if new_sos > 0 and new_sos != previous_sos_count:
-            self.sos_count[player] += new_sos  
+        
+        if self.current_player_name == "Blue":
+            self.blue_score += sos_count
+        else:
+            self.red_score += sos_count
 
+        
         if self.isGameOver():
-            return self.getGameState()  
+            if self.blue_score > self.red_score:
+                return "Game Over - Blue Wins!"
+            elif self.red_score > self.blue_score:
+                return "Game Over - Red Wins!"
+            else:
+                return "Game Over - It's a Draw!"
 
-        self.switch_turn()
         return True  
+
+
+class Player(ABC):
+    def __init__(self, name):
+        self.name = name
+        
+
+    @abstractmethod
+    def make_move(self, game):
+        pass
+
+
+class HumanPlayer(Player):
+    def __init__(self, name):
+        super().__init__(name)
+
+    def make_move(self, game):
+        pass  # human move handled through GUI
+
+
+class ComputerPlayer(Player):
+    def __init__(self, name: str, letter: str):
+        super().__init__(name)  
+        self.letter = letter    
+
+    def make_move(self, game):
+        empty_cells = [
+            (r, c)
+            for r in range(game.board_size)
+            for c in range(game.board_size)
+            if game.getCell(r, c) == " "
+        ]
+
+        if not empty_cells:
+            return
+
+        row, col = random.choice(empty_cells)
+        letter = random.choice(["S", "O"])
+        self.letter = letter  
+        game.board[row][col] = letter

@@ -25,6 +25,7 @@
     <Compile Include="src\__init__.py" />
     <Compile Include="src\sos_gui.py" />
     <Compile Include="src\sos_game.py" />
+    <Compile Include="tests\test_computer_player.py" />
     <Compile Include="tests\__init__.py" />
     <Compile Include="tests\test_game_over.py" />
     <Compile Include="tests\sprint0test.py" />
